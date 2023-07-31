@@ -22,6 +22,7 @@ function Home(dark) {
   const dispatch = useDispatch();
   const { user: authUser } = useSelector(x => x.auth);
   const { users } = useSelector(x => x.users);
+
   const logout = () => dispatch(authActions.logout());
 
   const [clientSidebar, setClientSideBar] = useState(false);
@@ -31,7 +32,6 @@ function Home(dark) {
   const [hedge, setHedge] = useState('');
   const [seluserid, setSelUserid] = useState(authUser[1]?.id || 0);
   const [allInfo, setAllInfo] = useState({});
-
   const isAdmin = useRef(authUser[1]?.usertype || 0);
   const selectedUser = useRef({
     username: authUser[1]?.username || '',
@@ -173,7 +173,15 @@ function Home(dark) {
           }
         )
         setAllInfo(subClientData);
+        // Persist the updated data in browser storage
+        localStorage.setItem('allInfo', JSON.stringify(subClientData));
       }
+    }
+
+    // Check if persisted data exists on component mount
+    const persistedAllInfo = localStorage.getItem('allInfo');
+    if (persistedAllInfo) {
+      setAllInfo(JSON.parse(persistedAllInfo));
     }
 
     socket.on('update-users-information', res => {
@@ -185,12 +193,11 @@ function Home(dark) {
     return () => {
       socket.off('update-users-information');
     };
-  }, [dispatch, setAllInfo]);
+  }, [dispatch, setAllInfo, users]);
 
 
   
   let total = (reward.equity??0) + (hedge.equity??0) + selectedUser.current.wallet;
-  console.log('total', selectedUser)
   let profit = (total - selectedUser.current.investment) * selectedUser.current.grossProfit /100;
   let profit_rate = profit>0 && selectedUser.current.investment>0? 100 * profit / selectedUser.current.investment: 0;
 

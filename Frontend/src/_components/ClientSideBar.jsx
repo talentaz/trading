@@ -3,7 +3,6 @@ import { common } from '_helpers';
 
 function ClientSideBar({show, setShow, selectedUserId, userList, allInfo, onSelect}) {
   const dataArray = Object.entries(allInfo);
-  
   const hedgeFilteredData = dataArray.filter(([key, value]) => value.hedgePip !== 0);
   const rewardFilteredData = dataArray.filter(([key, value]) => value.rewardPip !== 0);
   
